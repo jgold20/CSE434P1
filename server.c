@@ -1,7 +1,5 @@
-// Name of Author(s): Joshua Gold, Sudeep Aravind
+// Name of Author(s): Joshua Gold
 // Course Number and Name: CSE 434, Computer Networks
-// Semester: Fall 2016
-// Project Part: 1
 // CSE434
 
 #include <stdio.h>
@@ -134,7 +132,6 @@ int check_user (char client_id[]) {
 // Function to run when a client connects
 void client_routine (int sock, char client_ip[], int c_port) {
     int n;
-    
     char username[256];
     char buffer[256];
     char server_response[256];
@@ -148,7 +145,7 @@ void client_routine (int sock, char client_ip[], int c_port) {
     bzero(minerInfo, 256);
     // Read from client
     n = (int) read(sock, username, 255);
-    read_error(n, username);
+   
 
     // If check_user came back ok
         // Tells client they are connected
@@ -282,13 +279,12 @@ int main(int argc, char *argv[]) {
         }
 
         if (pid == 0) {
+		 active_miners--;
             close(server_socket);
-	   
             client_routine(client_socket, str, client_port);
-//	printf("CLIENT QUIT!");
             exit(0);
         } else {
-            // Close client socket
+           
             close(client_socket);
         }
     } // end while loop
