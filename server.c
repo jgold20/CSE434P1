@@ -1,5 +1,6 @@
 // Name of Author(s): Joshua Gold
 // Course Number and Name: CSE 434, Computer Networks
+// Semester: Spring 2018
 // CSE434
 
 #include <stdio.h>
@@ -13,6 +14,15 @@
 
 // Global count
 int active_miners = 0;
+miner_data miners[20];
+
+struct miner_data {
+	char username[];
+	char ip[];
+		int coins;
+		int client_port;
+};
+
 
 //Sign log_book file with an id
 void sign_log (char username[],  char ip[], int client_port, int coins){
@@ -32,12 +42,6 @@ void sign_log (char username[],  char ip[], int client_port, int coins){
  fclose(fp);
 }
 
-void updateMinerCount(int n) {
- FILE *fp;
- fp = fopen  ("server_log.txt", "w");
- fprintf(fp, "%i\n", n); 
- fclose(fp);
-}
 
 
 // Error handlers, if an error is present the program will sign client out and exit
@@ -58,33 +62,13 @@ void read_error (int n, char client_id[]) {
 
 // Q
 void query(int sock) {
-	FILE * fp;
-	fp = fopen ("server_log.txt", "r");
-	if(fp == NULL) {
-	 printf("NULL FILE");
-	 return;
+	printf("Number of Miners %d\n", active_miners);
+	for (int i = 0; i < miners.size(), i++) {
+		printf("name: %s\n", miners[i].username);
+		printf("IP: %s\n", miners[i].ip);
+		printf("Coins: %s\n", miners[i].coins);
+		printf("---------------------------\n");
 	}
-	int n;
-	char server_response[256];
-	char str[MAXCHAR];
-	bzero(server_response,256);
-	int i = 0;	
-	int c;
-	int index = 0;
-	if(fp) {
-		while((c = getc(fp)) != EOF) {
-	 		str[index] = (char) c;	
-	 		index = index + 1;
-		}
-	}
-	fclose(fp);
-		
-	strcpy(server_response, str);
-	n = (int) write(sock, server_response, sizeof(server_response));		
-		
-	//strcpy(server_response, "Qeuery");
-	//n = (int) write(sock, server_response, sizeof(server_response));
-	return;
 }
 
 
@@ -132,6 +116,7 @@ int check_user (char client_id[]) {
 // Function to run when a client connects
 void client_routine (int sock, char client_ip[], int c_port) {
     int n;
+    
     char username[256];
     char buffer[256];
     char server_response[256];
@@ -145,7 +130,7 @@ void client_routine (int sock, char client_ip[], int c_port) {
     bzero(minerInfo, 256);
     // Read from client
     n = (int) read(sock, username, 255);
-   
+    read_error(n, username);
 
     // If check_user came back ok
         // Tells client they are connected
@@ -279,12 +264,13 @@ int main(int argc, char *argv[]) {
         }
 
         if (pid == 0) {
-		 active_miners--;
             close(server_socket);
+	   
             client_routine(client_socket, str, client_port);
+//	printf("CLIENT QUIT!");
             exit(0);
         } else {
-           
+            // Close client socket
             close(client_socket);
         }
     } // end while loop
